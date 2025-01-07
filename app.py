@@ -23,8 +23,11 @@ def index():
         obj = FeatureExtraction(url)
         feature_list = obj.getFeaturesList()  # Extract features
         
-        # Assuming these are the feature names that were used during training
-        feature_columns = ['feature_1', 'feature_2', 'feature_3', ..., 'feature_30']  # Replace with actual feature names
+        # Ensure that we have 30 features
+        print(f"Feature list length: {len(feature_list)}")
+        
+        # Assuming these are the feature names
+        feature_columns = [f'feature_{i+1}' for i in range(30)]  # Generating 30 feature names
         
         # Create a DataFrame with the correct column names
         x_df = pd.DataFrame([feature_list], columns=feature_columns)
