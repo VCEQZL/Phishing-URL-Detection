@@ -5,9 +5,9 @@ import pickle
 from feature import FeatureExtraction
 from urllib.parse import quote
 
-file = open("pickle/model.pkl", "rb")
-gbc = pickle.load(file)
-file.close()
+# Load the model
+with open("pickle/model.pkl", "rb") as file:
+    gbc = pickle.load(file)
 
 # Print model type and scikit-learn version for debugging
 print(f"Loaded model type: {type(gbc)}")
@@ -22,12 +22,16 @@ def index():
         url = quote(request.form["url"])  # Using quote instead of url_quote
         obj = FeatureExtraction(url)
         feature_list = obj.getFeaturesList()  # Extract features
-        
+
         # Ensure that we have 30 features
         print(f"Feature list length: {len(feature_list)}")
         
-        # Assuming these are the feature names
+        # Assuming these are the feature names (replace this with the actual 30 feature names if needed)
         feature_columns = [f'feature_{i+1}' for i in range(30)]  # Generating 30 feature names
+        
+        # Check if the length of the feature list is correct
+        if len(feature_list) != 30:
+            return render_template('index.html', xx=-1, url=url, error="Feature list has an incorrect number of features.")
         
         # Create a DataFrame with the correct column names
         x_df = pd.DataFrame([feature_list], columns=feature_columns)
