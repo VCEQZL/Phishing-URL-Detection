@@ -24,6 +24,9 @@ expected_features = [
     "IsExternal", "HasFavicon", "HasMetaTags", "HasSSL", "HasWhois", "IsPhishing"
 ]
 
+# Default values for missing features
+default_feature_values = {feature: 0 for feature in expected_features}
+
 app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
@@ -36,21 +39,19 @@ def index():
         # Ensure that we have the same number of features
         print(f"Feature list length: {len(feature_list)}")
         print(f"Extracted features: {feature_list}")
-        
-        if len(feature_list) != len(expected_features):
-            # Debugging print to show what features are missing
-            missing_features = [feature for feature, value in zip(expected_features, feature_list) if value is None or value == -1]
-            print(f"Missing or invalid features: {missing_features}")
-            error_message = f"Expected {len(expected_features)} features, but got {len(feature_list)}."
-            return render_template('index.html', xx=-1, url=url, error=error_message)
 
-        # Optionally: Add missing features to match the expected number
-        if len(feature_list) < len(expected_features):
-            missing_features_count = len(expected_features) - len(feature_list)
-            print(f"Missing {missing_features_count} features. Adding default values.")
-            # You could add placeholders such as None or 0 to fill in missing features
-            feature_list.extend([0] * missing_features_count)  # Replace `0` with appropriate default values
+        if len(feature_list) != len(expected_features):
+            # Fill in missing features with default values
+            filled_features = {name: default_feature_values[name] for name in expected_features}
             
+            # Update with extracted feature values
+            for i, feature_name in enumerate(expected_features[:len(feature_list)]):
+                filled_features[feature_name] = feature_list[i]
+
+            # Ensure feature_list matches the order of expected_features
+            feature_list = [filled_features[name] for name in expected_features]
+            print(f"Adjusted feature list: {feature_list}")
+
         # Create a DataFrame with the correct column names
         x_df = pd.DataFrame([feature_list], columns=expected_features)
 
