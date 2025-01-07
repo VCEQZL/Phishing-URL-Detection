@@ -35,12 +35,13 @@ def index():
         
         # Ensure that we have the same number of features
         print(f"Feature list length: {len(feature_list)}")
-
+        print(f"Extracted features: {feature_list}")
+        
         if len(feature_list) != len(expected_features):
-            # Debugging print of missing or extra features
-            print(f"Extracted features: {feature_list}")
+            # Debugging print to show what features are missing
+            missing_features = [feature for feature, value in zip(expected_features, feature_list) if value is None or value == -1]
+            print(f"Missing or invalid features: {missing_features}")
             error_message = f"Expected {len(expected_features)} features, but got {len(feature_list)}."
-            print(error_message)
             return render_template('index.html', xx=-1, url=url, error=error_message)
 
         # Optionally: Add missing features to match the expected number
