@@ -1,18 +1,28 @@
 import pandas as pd
 from flask import Flask, request, render_template
-import numpy as np
 import pickle
 from feature import FeatureExtraction
 from urllib.parse import quote
 
 # Load the model
-with open("pickle/model.pkl", "rb") as file:
-    gbc = pickle.load(file)
+file = open("pickle/model.pkl", "rb")
+gbc = pickle.load(file)
+file.close()
 
 # Print model type and scikit-learn version for debugging
 print(f"Loaded model type: {type(gbc)}")
 import sklearn
 print(f"scikit-learn version: {sklearn.__version__}")
+
+# Define the actual feature names that the model expects
+expected_features = [
+    "AbnormalURL", "AgeofDomain", "AnchorURL", "DNSRecording", "DisableRightClick",
+    "DomainAge", "HasHTTPs", "HasQuery", "IPAddressInURL", "NumDots", "NumSlashes", 
+    "NumSubdomains", "PathLength", "ShorteningService", "SuspiciousDomain", 
+    "TopLevelDomain", "URLLength", "URLDepth", "URLHostname", "URLPath", 
+    "URLPort", "URLProtocol", "URLQueryString", "URLSubdomains", "URLTitle", 
+    "IsExternal", "HasFavicon", "HasMetaTags", "HasSSL", "HasWhois", "IsPhishing"
+]
 
 app = Flask(__name__)
 
@@ -22,19 +32,17 @@ def index():
         url = quote(request.form["url"])  # Using quote instead of url_quote
         obj = FeatureExtraction(url)
         feature_list = obj.getFeaturesList()  # Extract features
-
-        # Ensure that we have 30 features
+        
+        # Ensure that we have the same number of features
         print(f"Feature list length: {len(feature_list)}")
-        
-        # Assuming these are the feature names (replace this with the actual 30 feature names if needed)
-        feature_columns = [f'feature_{i+1}' for i in range(30)]  # Generating 30 feature names
-        
-        # Check if the length of the feature list is correct
-        if len(feature_list) != 30:
-            return render_template('index.html', xx=-1, url=url, error="Feature list has an incorrect number of features.")
-        
+
+        if len(feature_list) != len(expected_features):
+            error_message = f"Expected {len(expected_features)} features, but got {len(feature_list)}."
+            print(error_message)
+            return render_template('index.html', xx=-1, url=url, error=error_message)
+
         # Create a DataFrame with the correct column names
-        x_df = pd.DataFrame([feature_list], columns=feature_columns)
+        x_df = pd.DataFrame([feature_list], columns=expected_features)
 
         try:
             y_pred = gbc.predict(x_df)[0]  # Prediction
@@ -43,7 +51,7 @@ def index():
             pred = "It is {0:.2f}% safe to go".format(y_pro_phishing * 100)
         except Exception as e:
             print(f"Error during prediction: {e}")
-            return render_template('index.html', xx=-1, url=url)
+            return render_template('index.html', xx=-1, url=url, error=str(e))
         
         return render_template('index.html', xx=round(y_pro_non_phishing, 2), url=url)
     
