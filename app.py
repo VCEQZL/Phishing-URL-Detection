@@ -14,14 +14,13 @@ print(f"Loaded model type: {type(gbc)}")
 import sklearn
 print(f"scikit-learn version: {sklearn.__version__}")
 
-# Define the actual feature names that the model expects
+# Feature names must match the model training phase
 expected_features = [
-    "AbnormalURL", "AgeofDomain", "AnchorURL", "DNSRecording", "DisableRightClick",
-    "DomainAge", "HasHTTPs", "HasQuery", "IPAddressInURL", "NumDots", "NumSlashes", 
-    "NumSubdomains", "PathLength", "ShorteningService", "SuspiciousDomain", 
-    "TopLevelDomain", "URLLength", "URLDepth", "URLHostname", "URLPath", 
-    "URLPort", "URLProtocol", "URLQueryString", "URLSubdomains", "URLTitle", 
-    "IsExternal", "HasFavicon", "HasMetaTags", "HasSSL", "HasWhois", "IsPhishing"
+    "AbnormalURL", "DomainAge", "DomainRegLen", "Favicon", "GoogleIndex",
+    "HTTPS", "HTTPSDomainURL", "IPAddr", "PrefixSuffix", "RequestURL",
+    "SFH", "SSLfinal_State", "URL_of_Anchor", "Web_Traffic", "age_of_domain",
+    "having_IP_Address", "longestWord", "popUpWidnow", "port", "shortening_service",
+    "statistical_report", "submit_email", "url_length", "www_in_domain"
 ]
 
 # Default values for missing features
@@ -36,7 +35,7 @@ def index():
         obj = FeatureExtraction(url)
         feature_list = obj.getFeaturesList()  # Extract features
         
-        # Ensure that we have the same number of features
+        # Ensure the extracted feature list length matches expected features
         print(f"Feature list length: {len(feature_list)}")
         print(f"Extracted features: {feature_list}")
 
