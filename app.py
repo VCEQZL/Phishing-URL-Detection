@@ -37,10 +37,19 @@ def index():
         print(f"Feature list length: {len(feature_list)}")
 
         if len(feature_list) != len(expected_features):
+            # Debugging print of missing or extra features
+            print(f"Extracted features: {feature_list}")
             error_message = f"Expected {len(expected_features)} features, but got {len(feature_list)}."
             print(error_message)
             return render_template('index.html', xx=-1, url=url, error=error_message)
 
+        # Optionally: Add missing features to match the expected number
+        if len(feature_list) < len(expected_features):
+            missing_features_count = len(expected_features) - len(feature_list)
+            print(f"Missing {missing_features_count} features. Adding default values.")
+            # You could add placeholders such as None or 0 to fill in missing features
+            feature_list.extend([0] * missing_features_count)  # Replace `0` with appropriate default values
+            
         # Create a DataFrame with the correct column names
         x_df = pd.DataFrame([feature_list], columns=expected_features)
 
